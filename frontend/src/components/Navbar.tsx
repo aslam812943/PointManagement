@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Trophy, UserPlus, LayoutDashboard } from 'lucide-react';
+import { Trophy, UserPlus, LayoutDashboard, FileText } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -8,13 +8,17 @@ const Navbar = () => {
       <div className="container nav-content">
         <Link to="/" className="nav-logo">
           <Trophy className="logo-icon" size={28} />
-          <span className="logo-text">Festiva<span className="gradient-text">Points</span></span>
+          <span className="logo-text">Duff<span className="gradient-text">Points</span></span>
         </Link>
         
         <div className="nav-links">
           <Link to="/" className="nav-link">
             <Trophy size={18} />
             <span>Leaderboard</span>
+          </Link>
+          <Link to="/overview" className="nav-link">
+            <FileText size={18} />
+            <span>Full Overview</span>
           </Link>
           <Link to="/register" className="nav-link">
             <UserPlus size={18} />

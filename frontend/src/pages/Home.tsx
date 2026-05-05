@@ -1,15 +1,33 @@
-import { Trophy, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Trophy, TrendingUp, Users, Loader2 } from 'lucide-react';
 import './Home.css';
 
+interface Team {
+  _id: string;
+  name: string;
+  logoUrl: string;
+  totalPoints: number;
+}
+
 const Home = () => {
-  // Mock data for UI
-  const teams = [
-    { rank: 1, name: 'Cyber Warriors', points: 150, logo: 'https://via.placeholder.com/40' },
-    { rank: 2, name: 'Tech Titans', points: 135, logo: 'https://via.placeholder.com/40' },
-    { rank: 3, name: 'Alpha Squad', points: 120, logo: 'https://via.placeholder.com/40' },
-    { rank: 4, name: 'Nexus Force', points: 95, logo: 'https://via.placeholder.com/40' },
-    { rank: 5, name: 'Quantum Leap', points: 80, logo: 'https://via.placeholder.com/40' },
-  ];
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/teams/leaderboard');
+        const data = await response.json();
+        setTeams(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLeaderboard();
+  }, []);
 
   return (
     <div className="container home-page">
@@ -23,59 +41,72 @@ const Home = () => {
           <Trophy className="stat-icon" size={24} />
           <div className="stat-info">
             <span className="stat-label">Top Team</span>
-            <span className="stat-value">Cyber Warriors</span>
+            <span className="stat-value">{teams[0]?.name || '---'}</span>
           </div>
         </div>
         <div className="stat-card glass">
           <Users className="stat-icon" size={24} />
           <div className="stat-info">
             <span className="stat-label">Total Teams</span>
-            <span className="stat-value">24 Verified</span>
+            <span className="stat-value">{teams.length} Verified</span>
           </div>
         </div>
         <div className="stat-card glass">
           <TrendingUp className="stat-icon" size={24} />
           <div className="stat-info">
             <span className="stat-label">Active Programs</span>
-            <span className="stat-value">12 Upcoming</span>
+            <span className="stat-value">Ongoing</span>
           </div>
         </div>
       </div>
 
       <div className="leaderboard-section glass">
-        <table className="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Team</th>
-              <th>Total Points</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teams.map((team) => (
-              <tr key={team.rank} className="table-row">
-                <td className="rank-cell">
-                  <span className={`rank-badge rank-${team.rank}`}>
-                    {team.rank === 1 ? '🥇' : team.rank === 2 ? '🥈' : team.rank === 3 ? '🥉' : team.rank}
-                  </span>
-                </td>
-                <td className="team-cell">
-                  <div className="team-info">
-                    <img src={team.logo} alt={team.name} className="team-logo-small" />
-                    <span className="team-name">{team.name}</span>
-                  </div>
-                </td>
-                <td className="points-cell">
-                  <span className="points-value">{team.points}</span>
-                </td>
-                <td>
-                  <span className="status-badge verified">Verified</span>
-                </td>
+        {loading ? (
+          <div className="loading-container">
+            <Loader2 className="spin-icon" size={48} />
+            <p>Loading leaderboard...</p>
+          </div>
+        ) : teams.length === 0 ? (
+          <div className="empty-state">
+            <p>No verified teams yet. Stay tuned!</p>
+          </div>
+        ) : (
+          <table className="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Team</th>
+                <th>Total Points</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {teams.map((team, index) => (
+                <tr key={team._id} className="table-row">
+                  <td className="rank-cell">
+                    <span className={`rank-badge rank-${index + 1}`}>
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                    </span>
+                  </td>
+                  <td className="team-cell">
+                    <Link to={`/team/${team._id}`} className="team-link">
+                      <div className="team-info">
+                        <img src={team.logoUrl} alt={team.name} className="team-logo-small" />
+                        <span className="team-name">{team.name}</span>
+                      </div>
+                    </Link>
+                  </td>
+                  <td className="points-cell">
+                    <span className="points-value">{team.totalPoints}</span>
+                  </td>
+                  <td>
+                    <span className="status-badge verified">Verified</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

@@ -78,6 +78,18 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.team-link {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.team-link:hover {
+  transform: translateX(10px);
+  color: var(--accent-primary);
+}
+
 .team-info {
   display: flex;
   align-items: center;
@@ -128,4 +140,23 @@
 
 .rank-1, .rank-2, .rank-3 {
   font-size: 1.5rem;
+}
+
+.loading-container, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
