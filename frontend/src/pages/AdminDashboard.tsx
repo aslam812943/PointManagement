@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Users, CheckCircle, XCircle, LogOut, 
+  Users, CheckCircle, XCircle, LogOut, Menu,
   LayoutDashboard, Settings, Search, Loader2, CalendarRange, Trophy, Ban, Unlock 
 } from 'lucide-react';
 import AdminPrograms from '../components/AdminPrograms';
@@ -21,12 +21,14 @@ const AdminDashboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('teams');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (activeTab === 'teams') {
       fetchTeams();
     }
+    setIsSidebarOpen(false);
   }, [activeTab]);
 
   const fetchTeams = async () => {
@@ -110,71 +112,73 @@ const AdminDashboard = () => {
                 <p>Loading teams...</p>
               </div>
             ) : (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Team Info</th>
-                    <th>Points</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {teams.map((team) => (
-                    <tr key={team._id} className={team.isBlocked ? 'blocked-row' : ''}>
-                      <td>
-                        <div className="team-info-cell">
-                          <img src={team.logoUrl} alt={team.name} className="team-avatar" />
-                          <div className="team-name-group">
-                            <span className="team-name">{team.name}</span>
-                            {team.isBlocked && <span className="blocked-tag">BLOCKED</span>}
-                          </div>
-                        </div>
-                      </td>
-                      <td>{team.totalPoints}</td>
-                      <td>
-                        <span className={`status-tag ${team.status}`}>
-                          {team.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          {team.status === 'pending' && (
-                            <>
-                              <button 
-                                className="action-btn approve"
-                                onClick={() => handleUpdateStatus(team._id, 'verified')}
-                              >
-                                <CheckCircle size={18} />
-                                <span>Approve</span>
-                              </button>
-                              <button 
-                                className="action-btn reject"
-                                onClick={() => handleUpdateStatus(team._id, 'rejected')}
-                              >
-                                <XCircle size={18} />
-                                <span>Reject</span>
-                              </button>
-                            </>
-                          )}
-                          {team.status === 'verified' && (
-                            <button 
-                              className={`action-btn ${team.isBlocked ? 'unblock' : 'block'}`}
-                              onClick={() => handleToggleBlock(team._id, team.isBlocked)}
-                            >
-                              {team.isBlocked ? <Unlock size={18} /> : <Ban size={18} />}
-                              <span>{team.isBlocked ? 'Unblock' : 'Block'}</span>
-                            </button>
-                          )}
-                          {team.status === 'rejected' && (
-                            <span className="text-muted">Rejected</span>
-                          )}
-                        </div>
-                      </td>
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Team Info</th>
+                      <th>Points</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {teams.map((team) => (
+                      <tr key={team._id} className={team.isBlocked ? 'blocked-row' : ''}>
+                        <td>
+                          <div className="team-info-cell">
+                            <img src={team.logoUrl} alt={team.name} className="team-avatar" />
+                            <div className="team-name-group">
+                              <span className="team-name">{team.name}</span>
+                              {team.isBlocked && <span className="blocked-tag">BLOCKED</span>}
+                            </div>
+                          </div>
+                        </td>
+                        <td>{team.totalPoints}</td>
+                        <td>
+                          <span className={`status-tag ${team.status}`}>
+                            {team.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            {team.status === 'pending' && (
+                              <>
+                                <button 
+                                  className="action-btn approve"
+                                  onClick={() => handleUpdateStatus(team._id, 'verified')}
+                                >
+                                  <CheckCircle size={18} />
+                                  <span>Approve</span>
+                                </button>
+                                <button 
+                                  className="action-btn reject"
+                                  onClick={() => handleUpdateStatus(team._id, 'rejected')}
+                                >
+                                  <XCircle size={18} />
+                                  <span>Reject</span>
+                                </button>
+                              </>
+                            )}
+                            {team.status === 'verified' && (
+                              <button 
+                                className={`action-btn ${team.isBlocked ? 'unblock' : 'block'}`}
+                                onClick={() => handleToggleBlock(team._id, team.isBlocked)}
+                              >
+                                {team.isBlocked ? <Unlock size={18} /> : <Ban size={18} />}
+                                <span>{team.isBlocked ? 'Unblock' : 'Block'}</span>
+                              </button>
+                            )}
+                            {team.status === 'rejected' && (
+                              <span className="text-muted">Rejected</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         );
@@ -189,8 +193,30 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-layout">
+      {/* Mobile Header */}
+      <header className="admin-mobile-header">
+        <div className="mobile-logo">
+          <LayoutDashboard className="logo-icon" size={24} />
+          <span>AdminPanel</span>
+        </div>
+        <button 
+          className="mobile-sidebar-toggle-top"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          <Menu size={28} />
+        </button>
+      </header>
+
+      {/* Sidebar Toggle for Mobile (FAB) - Optional, keeping for convenience or removing if redundant. I'll keep it but style it better. */}
+      <button 
+        className="mobile-sidebar-toggle"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <Menu size={24} />
+      </button>
+
       {/* Sidebar */}
-      <aside className="admin-sidebar glass">
+      <aside className={`admin-sidebar glass ${isSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <LayoutDashboard className="logo-icon" />
           <span className="sidebar-logo">AdminPanel</span>
@@ -259,6 +285,14 @@ const AdminDashboard = () => {
 
         {renderContent()}
       </main>
+
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 };

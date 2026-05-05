@@ -10,6 +10,7 @@
   --border-color: #27272a;
   --glass-bg: rgba(20, 20, 23, 0.8);
   --glass-border: rgba(255, 255, 255, 0.1);
+  --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
 * {

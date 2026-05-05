@@ -123,3 +123,28 @@
   justify-content: center;
   margin-bottom: 8px;
 }
+
+@media (max-width: 768px) {
+  .overview-page {
+    width: 100%;
+    padding: 20px 10px;
+  }
+
+  .sticky-col {
+    min-width: 150px;
+    font-size: 0.8rem;
+  }
+
+  .team-mini-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .master-table th, .master-table td {
+    padding: 10px;
+  }
+
+  .program-header {
+    min-width: 100px;
+  }
+}

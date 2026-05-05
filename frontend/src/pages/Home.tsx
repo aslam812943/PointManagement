@@ -71,41 +71,43 @@ const Home = () => {
             <p>No verified teams yet. Stay tuned!</p>
           </div>
         ) : (
-          <table className="leaderboard-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>Total Points</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teams.map((team, index) => (
-                <tr key={team._id} className="table-row">
-                  <td className="rank-cell">
-                    <span className={`rank-badge rank-${index + 1}`}>
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                    </span>
-                  </td>
-                  <td className="team-cell">
-                    <Link to={`/team/${team._id}`} className="team-link">
-                      <div className="team-info">
-                        <img src={team.logoUrl} alt={team.name} className="team-logo-small" />
-                        <span className="team-name">{team.name}</span>
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="points-cell">
-                    <span className="points-value">{team.totalPoints}</span>
-                  </td>
-                  <td>
-                    <span className="status-badge verified">Verified</span>
-                  </td>
+          <div className="table-responsive">
+            <table className="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Team</th>
+                  <th>Total Points</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {teams.map((team, index) => (
+                  <tr key={team._id} className="table-row">
+                    <td className="rank-cell">
+                      <span className={`rank-badge rank-${index + 1}`}>
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      </span>
+                    </td>
+                    <td className="team-cell">
+                      <Link to={`/team/${team._id}`} className="team-link">
+                        <div className="team-info">
+                          <img src={team.logoUrl} alt={team.name} className="team-logo-small" />
+                          <span className="team-name">{team.name}</span>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="points-cell">
+                      <span className="points-value">{team.totalPoints}</span>
+                    </td>
+                    <td>
+                      <span className="status-badge verified">Verified</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

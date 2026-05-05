@@ -156,6 +156,57 @@
   animation: spin 1s linear infinite;
 }
 
+@media (max-width: 992px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .page-title {
+    font-size: 2.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .page-header {
+    margin-bottom: 40px;
+  }
+
+  .page-title {
+    font-size: 2.25rem;
+  }
+
+  .leaderboard-section {
+    padding: 12px;
+    margin: 0 -12px;
+    border-radius: 0;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .leaderboard-table th, 
+  .leaderboard-table td {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+
+  .team-info {
+    gap: 10px;
+  }
+
+  .team-logo-small {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
