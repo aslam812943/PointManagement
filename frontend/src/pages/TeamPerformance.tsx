@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Trophy, Calendar, Medal, ArrowLeft, Loader2, MapPin } from 'lucide-react';
@@ -39,9 +40,9 @@ const TeamPerformance = () => {
   const fetchData = async () => {
     try {
       const [teamRes, programsRes, resultsRes] = await Promise.all([
-        fetch(`http://localhost:3000/teams/${id}`),
-        fetch(`http://localhost:3000/programs`),
-        fetch(`http://localhost:3000/results`)
+        fetch(`${API_BASE_URL}/teams/${id}`),
+        fetch(`${API_BASE_URL}/programs`),
+        fetch(`${API_BASE_URL}/results`)
       ]);
 
       setTeam(await teamRes.json());

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trophy, TrendingUp, Users, Loader2 } from 'lucide-react';
@@ -17,7 +18,7 @@ const Home = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await fetch('http://localhost:3000/teams/leaderboard');
+        const response = await fetch(`${API_BASE_URL}/teams/leaderboard`);
         const data = await response.json();
         setTeams(data);
       } catch (error) {

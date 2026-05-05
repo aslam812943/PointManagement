@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
     setLoading(true);
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch('http://localhost:3000/teams/all', {
+      const response = await fetch(`${API_BASE_URL}/teams/all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.status === 401) {
@@ -54,7 +55,7 @@ const AdminDashboard = () => {
   const handleUpdateStatus = async (id: string, status: 'verified' | 'rejected') => {
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`http://localhost:3000/teams/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/teams/${id}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -76,7 +77,7 @@ const AdminDashboard = () => {
   const handleToggleBlock = async (id: string, currentBlockedStatus: boolean) => {
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`http://localhost:3000/teams/${id}/block`, {
+      const response = await fetch(`${API_BASE_URL}/teams/${id}/block`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',

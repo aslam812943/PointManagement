@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useState } from 'react';
 import { UserPlus, Upload, ShieldCheck, Info, Loader2 } from 'lucide-react';
 import './Register.css';
@@ -40,7 +41,7 @@ const Register = () => {
     formData.append('logo', logo);
 
     try {
-      const response = await fetch('http://localhost:3000/teams/register', {
+      const response = await fetch(`${API_BASE_URL}/teams/register`, {
         method: 'POST',
         body: formData,
       });

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useEffect, useState } from 'react';
 import { Loader2, FileText } from 'lucide-react';
 import './FullOverview.css';
@@ -34,9 +35,9 @@ const FullOverview = () => {
   const fetchData = async () => {
     try {
       const [teamsRes, programsRes, resultsRes] = await Promise.all([
-        fetch('http://localhost:3000/teams/leaderboard'),
-        fetch('http://localhost:3000/programs'),
-        fetch('http://localhost:3000/results')
+        fetch(`${API_BASE_URL}/teams/leaderboard`),
+        fetch(`${API_BASE_URL}/programs`),
+        fetch(`${API_BASE_URL}/results`)
       ]);
 
       setTeams(await teamsRes.json());
