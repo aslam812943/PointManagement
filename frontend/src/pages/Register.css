@@ -150,3 +150,52 @@
   gap: 10px;
   margin-top: 12px;
 }
+
+.status-message {
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-message.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-message.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .register-container {
+    padding: 32px 20px;
+    margin: 20px;
+  }
+
+  .register-title {
+    font-size: 1.75rem;
+  }
+
+  .file-upload-box {
+    padding: 24px 16px;
+  }
+
+  .logo-preview-img {
+    width: 100px;
+    height: 100px;
+  }
+}
