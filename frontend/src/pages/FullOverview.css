@@ -1,0 +1,150 @@
+.overview-page {
+  padding-top: 40px;
+  max-width: 100% !important;
+  width: 95%;
+}
+
+.overview-card {
+  padding: 0;
+  overflow: hidden;
+  margin-top: 40px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.master-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* Header Styles */
+.master-table th {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.program-header {
+  min-width: 150px;
+}
+
+.p-date {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.p-name {
+  display: block;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sticky Column */
+.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--bg-primary) !important;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+  text-align: left !important;
+  min-width: 220px;
+}
+
+.team-col {
+  padding-left: 24px !important;
+}
+
+/* Cell Styles */
+.master-table td {
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.team-cell-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.team-mini-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pts-cell {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.pts-cell.won {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+  font-weight: 800;
+}
+
+.total-header, .total-cell {
+  background: rgba(99, 102, 241, 0.05) !important;
+  color: var(--accent-primary);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.total-header {
+  min-width: 100px;
+}
+
+.master-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header-icon {
+  color: var(--accent-primary);
+  margin-right: 12px;
+}
+
+.title-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .overview-page {
+    width: 100%;
+    padding: 20px 10px;
+  }
+
+  .sticky-col {
+    min-width: 150px;
+    font-size: 0.8rem;
+  }
+
+  .team-mini-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .master-table th, .master-table td {
+    padding: 10px;
+  }
+
+  .program-header {
+    min-width: 100px;
+  }
+}

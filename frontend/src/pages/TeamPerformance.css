@@ -1,0 +1,224 @@
+.team-detail-page {
+  padding-top: 40px;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 32px;
+  width: fit-content;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  color: var(--accent-primary);
+  transform: translateX(-4px);
+}
+
+.team-header-card {
+  padding: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.team-main-info {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.team-large-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--accent-primary);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.team-name-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.team-status-label {
+  color: #10b981;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-score-card {
+  background: rgba(99, 102, 241, 0.1);
+  padding: 24px 32px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.trophy-icon {
+  color: #fbbf24;
+}
+
+.score-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.score-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: var(--accent-primary);
+}
+
+/* Performance Timeline */
+.section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.timeline-date-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-left: 8px;
+  border-left: 4px solid var(--accent-primary);
+}
+
+.timeline-programs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.program-detail-card {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.p-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.p-loc {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.program-result-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.result-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.points-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Position Colors */
+.program-result-tag.first .result-info { color: #ffd700; }
+.program-result-tag.first .points-badge { background: rgba(255, 215, 0, 0.1); color: #ffd700; }
+
+.program-result-tag.second .result-info { color: #c0c0c0; }
+.program-result-tag.second .points-badge { background: rgba(192, 192, 192, 0.1); color: #c0c0c0; }
+
+.program-result-tag.third .result-info { color: #cd7f32; }
+.program-result-tag.third .points-badge { background: rgba(205, 127, 50, 0.1); color: #cd7f32; }
+
+.program-result-tag.none .result-info { color: var(--text-secondary); opacity: 0.5; }
+.program-result-tag.none .points-badge { color: var(--text-secondary); opacity: 0.5; }
+
+.loading-screen {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 992px) {
+  .team-header-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 32px;
+    padding: 32px 24px;
+  }
+
+  .team-main-info {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .team-score-card {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .team-name-title {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .timeline-programs {
+    grid-template-columns: 1fr;
+  }
+
+  .program-detail-card {
+    padding: 16px;
+  }
+
+  .p-title {
+    font-size: 1rem;
+  }
+}

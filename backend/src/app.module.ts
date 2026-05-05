@@ -7,6 +7,11 @@ import databaseConfig from './config/database.config.js';
 import jwtConfig from './config/jwt.config.js';
 import cloudinaryConfig from './config/cloudinary.config.js';
 import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
+import { TeamsModule } from './modules/teams/teams.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { ProgramsModule } from './modules/programs/programs.module.js';
+import { ResultsModule } from './modules/results/results.module.js';
 
 @Module({
   imports: [
@@ -22,6 +27,11 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
       inject: [ConfigService],
     }),
     CloudinaryModule,
+    TeamsModule,
+    AdminModule,
+    AuthModule,
+    ProgramsModule,
+    ResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
