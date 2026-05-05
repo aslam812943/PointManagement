@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useState, useEffect } from 'react';
 import { Trophy, Calendar, Medal, Loader2, CheckCircle2 } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
@@ -40,9 +41,9 @@ const AdminResults = () => {
   const fetchInitialData = async () => {
     try {
       const [programsRes, teamsRes, resultsRes] = await Promise.all([
-        fetch('http://localhost:3000/programs'),
-        fetch('http://localhost:3000/teams/leaderboard'),
-        fetch('http://localhost:3000/results')
+        fetch(`${API_BASE_URL}/programs`),
+        fetch(`${API_BASE_URL}/teams/leaderboard`),
+        fetch(`${API_BASE_URL}/results`)
       ]);
       setPrograms(await programsRes.json());
       setTeams(await teamsRes.json());
@@ -75,7 +76,7 @@ const AdminResults = () => {
     setShowConfirm(false);
     setSubmitting(true);
     try {
-      const response = await fetch('http://localhost:3000/results', {
+      const response = await fetch(`${API_BASE_URL}/results`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

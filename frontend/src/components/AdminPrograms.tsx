@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config/api.config";
 import { useState, useEffect } from 'react';
 import { Calendar, MapPin, Plus, Trash2, Loader2, ListChecks } from 'lucide-react';
 
@@ -25,7 +26,7 @@ const AdminPrograms = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await fetch('http://localhost:3000/programs');
+      const response = await fetch(`${API_BASE_URL}/programs`);
       const data = await response.json();
       setPrograms(data);
     } catch (error) {
@@ -40,7 +41,7 @@ const AdminPrograms = () => {
     setSubmitting(true);
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch('http://localhost:3000/programs', {
+      const response = await fetch(`${API_BASE_URL}/programs`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ const AdminPrograms = () => {
     if (!confirm('Are you sure you want to delete this program?')) return;
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`http://localhost:3000/programs/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/programs/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
