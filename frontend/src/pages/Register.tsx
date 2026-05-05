@@ -1,15 +1,21 @@
 import { useState } from 'react';
-import { UserPlus, Upload, ShieldCheck, Info } from 'lucide-react';
+import { UserPlus, Upload, ShieldCheck, Info, Loader2 } from 'lucide-react';
 import './Register.css';
 
 const Register = () => {
   const [teamName, setTeamName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB');
+        return;
+      }
       setLogo(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -19,10 +25,41 @@ const Register = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ teamName, logo });
-    alert('Team submitted for review!');
+    if (!logo) {
+      alert('Please upload a team logo');
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    const formData = new FormData();
+    formData.append('name', teamName);
+    formData.append('logo', logo);
+
+    try {
+      const response = await fetch('http://localhost:3000/teams/register', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      setMessage({ type: 'success', text: 'Team registered successfully! Pending admin review.' });
+      setTeamName('');
+      setLogo(null);
+      setPreview(null);
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Something went wrong' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,6 +74,12 @@ const Register = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="register-form">
+          {message && (
+            <div className={`status-message ${message.type}`}>
+              {message.text}
+            </div>
+          )}
+
           <div className="form-group">
             <label className="form-label">Team Name</label>
             <input 
@@ -46,6 +89,7 @@ const Register = () => {
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
@@ -58,6 +102,7 @@ const Register = () => {
                 className="file-input-hidden" 
                 onChange={handleFileChange}
                 accept="image/*"
+                disabled={loading}
               />
               <label htmlFor="logo-upload" className="file-upload-box">
                 {preview ? (
@@ -81,9 +126,9 @@ const Register = () => {
             </p>
           </div>
 
-          <button type="submit" className="btn-primary submit-btn">
-            <ShieldCheck size={20} />
-            <span>Submit for Review</span>
+          <button type="submit" className="btn-primary submit-btn" disabled={loading}>
+            {loading ? <Loader2 className="spin-icon" size={20} /> : <ShieldCheck size={20} />}
+            <span>{loading ? 'Registering...' : 'Submit for Review'}</span>
           </button>
         </form>
       </div>
