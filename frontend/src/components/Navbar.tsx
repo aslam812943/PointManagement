@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, UserPlus, LayoutDashboard, FileText, Menu, X } from 'lucide-react';
+import { Trophy, UserPlus, LayoutDashboard, FileText, Menu, X, Clock } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -29,6 +29,10 @@ const Navbar = () => {
           <Link to="/overview" className="nav-link" onClick={closeMenu}>
             <FileText size={18} />
             <span>Full Overview</span>
+          </Link>
+          <Link to="/programs" className="nav-link" onClick={closeMenu}>
+            <Clock size={18} />
+            <span>Schedule</span>
           </Link>
           <Link to="/register" className="nav-link" onClick={closeMenu}>
             <UserPlus size={18} />

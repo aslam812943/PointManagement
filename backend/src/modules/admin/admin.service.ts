@@ -3,8 +3,8 @@ import { AdminRepository } from './admin.repository.js';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class AdminService{
-  constructor(private readonly adminRepository: AdminRepository) {}
+export class AdminService {
+  constructor(private readonly adminRepository: AdminRepository) { }
 
   // async onModuleInit() {
   //   const adminCount = (await this.adminRepository.findAll()).length;
