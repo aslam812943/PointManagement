@@ -6,6 +6,7 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import TeamPerformance from './pages/TeamPerformance';
 import FullOverview from './pages/FullOverview';
+import Programs from './pages/Programs';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/overview" element={<FullOverview />} />
+          <Route path="/programs" element={<Programs />} />
           <Route path="/team/:id" element={<TeamPerformance />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route 
