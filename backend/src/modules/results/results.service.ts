@@ -13,27 +13,35 @@ export class ResultsService {
 
   async assignResults(data: {
     programId: string;
+    styleCategory: string;
     firstPlace: string;
     secondPlace: string;
     thirdPlace: string;
+    fourthPlace?: string;
+    fifthPlace?: string;
   }): Promise<ResultDocument> {
-    const existingResult = await this.resultsRepository.findByProgramId(data.programId);
+    const existingResult = await this.resultsRepository.findByProgramAndStyle(data.programId, data.styleCategory);
     if (existingResult) {
-      throw new ConflictException('Results already assigned for this program');
+      throw new ConflictException(`Results already assigned for this program under ${data.styleCategory} category`);
     }
 
     // Prepare data by removing empty strings
     const resultData: any = {
       programId: data.programId,
+      styleCategory: data.styleCategory,
       firstPlace: data.firstPlace || undefined,
       secondPlace: data.secondPlace || undefined,
       thirdPlace: data.thirdPlace || undefined,
+      fourthPlace: data.fourthPlace || undefined,
+      fifthPlace: data.fifthPlace || undefined,
     };
 
     // Assign points to teams
     if (resultData.firstPlace) await this.teamsService.addPoints(resultData.firstPlace, POINTS.FIRST);
     if (resultData.secondPlace) await this.teamsService.addPoints(resultData.secondPlace, POINTS.SECOND);
     if (resultData.thirdPlace) await this.teamsService.addPoints(resultData.thirdPlace, POINTS.THIRD);
+    if (resultData.fourthPlace) await this.teamsService.addPoints(resultData.fourthPlace, POINTS.FOURTH);
+    if (resultData.fifthPlace) await this.teamsService.addPoints(resultData.fifthPlace, POINTS.FIFTH);
 
     return this.resultsRepository.create(resultData);
   }
@@ -50,6 +58,8 @@ export class ResultsService {
     if (result.firstPlace) await this.teamsService.removePoints((result.firstPlace as any)._id, POINTS.FIRST);
     if (result.secondPlace) await this.teamsService.removePoints((result.secondPlace as any)._id, POINTS.SECOND);
     if (result.thirdPlace) await this.teamsService.removePoints((result.thirdPlace as any)._id, POINTS.THIRD);
+    if ((result as any).fourthPlace) await this.teamsService.removePoints((result as any).fourthPlace._id, POINTS.FOURTH);
+    if ((result as any).fifthPlace) await this.teamsService.removePoints((result as any).fifthPlace._id, POINTS.FIFTH);
 
     return this.resultsRepository.delete(id);
   }

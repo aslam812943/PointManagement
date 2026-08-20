@@ -14,6 +14,7 @@ interface Team {
   name: string;
   logoUrl: string;
   status: 'pending' | 'verified' | 'rejected';
+  style: string;
   totalPoints: number;
   isBlocked: boolean;
 }
@@ -22,7 +23,13 @@ const AdminDashboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('teams');
+  const [teamStyleFilter, setTeamStyleFilter] = useState('All');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
+  const [newTeamName, setNewTeamName] = useState('');
+  const [newTeamStyle, setNewTeamStyle] = useState('Style 1');
+  const [newTeamLogo, setNewTeamLogo] = useState<File | null>(null);
+  const [addingTeam, setAddingTeam] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,6 +103,41 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleAddTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddingTeam(true);
+    const formData = new FormData();
+    formData.append('name', newTeamName);
+    formData.append('style', newTeamStyle);
+    if (newTeamLogo) {
+      formData.append('logo', newTeamLogo);
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/teams/register`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('Team added successfully! You can now verify it.');
+        setIsAddTeamModalOpen(false);
+        setNewTeamName('');
+        setNewTeamStyle('Style 1');
+        setNewTeamLogo(null);
+        fetchTeams();
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error adding team');
+      }
+    } catch (error) {
+      console.error('Error adding team:', error);
+      alert('Something went wrong');
+    } finally {
+      setAddingTeam(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('isAdminAuthenticated');
     localStorage.removeItem('adminToken');
@@ -105,6 +147,10 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'teams':
+        const filteredTeams = teamStyleFilter === 'All' 
+          ? teams 
+          : teams.filter(t => t.style === teamStyleFilter);
+        
         return (
           <div className="teams-section glass">
             {loading ? (
@@ -114,17 +160,35 @@ const AdminDashboard = () => {
               </div>
             ) : (
               <div className="admin-table-container">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', gap: '1rem' }}>
+                  <button 
+                    onClick={() => setIsAddTeamModalOpen(true)}
+                    style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: 'var(--primary-color)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    + Add Team
+                  </button>
+                  <select 
+                    value={teamStyleFilter}
+                    onChange={(e) => setTeamStyleFilter(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)' }}
+                  >
+                    <option value="All">All Styles</option>
+                    <option value="Style 1">Style 1</option>
+                    <option value="Style 2">Style 2</option>
+                  </select>
+                </div>
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th>Team Info</th>
+                      <th>Style</th>
                       <th>Points</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {teams.map((team) => (
+                    {filteredTeams.map((team) => (
                       <tr key={team._id} className={team.isBlocked ? 'blocked-row' : ''}>
                         <td>
                           <div className="team-info-cell">
@@ -135,6 +199,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </td>
+                        <td>{team.style || '---'}</td>
                         <td>{team.totalPoints}</td>
                         <td>
                           <span className={`status-tag ${team.status}`}>
@@ -179,6 +244,37 @@ const AdminDashboard = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+            
+            {isAddTeamModalOpen && (
+              <div className="sidebar-overlay" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) setIsAddTeamModalOpen(false); }}>
+                <div className="glass" style={{ padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '400px', position: 'relative' }}>
+                  <h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'white' }}>Add New Team</h3>
+                  <form onSubmit={handleAddTeam} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Name</label>
+                      <input type="text" value={newTeamName} onChange={e => setNewTeamName(e.target.value)} required style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Style</label>
+                      <select value={newTeamStyle} onChange={e => setNewTeamStyle(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }}>
+                        <option value="Style 1" style={{color: 'black'}}>Style 1</option>
+                        <option value="Style 2" style={{color: 'black'}}>Style 2</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Logo</label>
+                      <input type="file" accept="image/*" onChange={e => setNewTeamLogo(e.target.files?.[0] || null)} style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <button type="button" onClick={() => setIsAddTeamModalOpen(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'transparent', border: '1px solid var(--border-color)', color: 'white', cursor: 'pointer' }}>Cancel</button>
+                      <button type="submit" disabled={addingTeam} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'var(--primary-color)', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                        {addingTeam ? 'Adding...' : 'Add Team'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
           </div>

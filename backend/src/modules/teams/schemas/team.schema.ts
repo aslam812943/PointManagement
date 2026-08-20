@@ -8,8 +8,11 @@ export class Team {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   logoUrl: string;
+
+  @Prop({ required: true, enum: ['Style 1', 'Style 2'] })
+  style: string;
 
   @Prop({ default: 'pending' })
   status: 'pending' | 'verified' | 'rejected';

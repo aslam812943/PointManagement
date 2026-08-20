@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../config/api.config";
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, User, LogIn, AlertCircle, Loader2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Lock, User, LogIn, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import './AdminLogin.css';
 
 const AdminLogin = () => {
@@ -96,6 +96,13 @@ const AdminLogin = () => {
             {loading ? <Loader2 className="spin-icon" size={20} /> : <LogIn size={20} />}
             <span>{loading ? 'Signing In...' : 'Sign In'}</span>
           </button>
+
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.9rem' }}>
+              <ArrowLeft size={16} />
+              <span style={{ borderBottom: '1px solid transparent', transition: 'border-color 0.3s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottom = '1px solid var(--text-secondary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottom = '1px solid transparent'}>Back to Dashboard</span>
+            </Link>
+          </div>
         </form>
       </div>
     </div>

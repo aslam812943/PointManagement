@@ -16,8 +16,8 @@ export class ResultsRepository implements IRepository<ResultDocument> {
     return this.resultModel.findById(id).populate('firstPlace secondPlace thirdPlace').exec();
   }
 
-  async findByProgramId(programId: string): Promise<ResultDocument | null> {
-    return this.resultModel.findOne({ programId }).exec();
+  async findByProgramAndStyle(programId: string, styleCategory: string): Promise<ResultDocument | null> {
+    return this.resultModel.findOne({ programId, styleCategory }).exec();
   }
 
   async create(data: Partial<Result>): Promise<ResultDocument> {
