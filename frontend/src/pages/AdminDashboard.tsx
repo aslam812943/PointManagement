@@ -186,7 +186,6 @@ const AdminDashboard = () => {
                   <thead>
                     <tr>
                       <th>Team Info</th>
-                      <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -201,11 +200,6 @@ const AdminDashboard = () => {
                               {team.isBlocked && <span className="blocked-tag">BLOCKED</span>}
                             </div>
                           </div>
-                        </td>
-                        <td>
-                          <span className={`status-tag ${team.status}`}>
-                            {team.status}
-                          </span>
                         </td>
                         <td>
                           <div className="action-buttons">
@@ -235,9 +229,6 @@ const AdminDashboard = () => {
                                 {team.isBlocked ? <Unlock size={18} /> : <Ban size={18} />}
                                 <span>{team.isBlocked ? 'Unblock' : 'Block'}</span>
                               </button>
-                            )}
-                            {team.status === 'rejected' && (
-                              <span className="text-muted">Rejected</span>
                             )}
                           </div>
                         </td>
