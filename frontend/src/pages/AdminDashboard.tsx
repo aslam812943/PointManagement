@@ -186,8 +186,6 @@ const AdminDashboard = () => {
                   <thead>
                     <tr>
                       <th>Team Info</th>
-                      <th>Style</th>
-                      <th>Points</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
@@ -204,8 +202,6 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </td>
-                        <td>{team.style || '---'}</td>
-                        <td>{team.totalPoints}</td>
                         <td>
                           <span className={`status-tag ${team.status}`}>
                             {team.status}

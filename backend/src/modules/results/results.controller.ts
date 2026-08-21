@@ -11,9 +11,9 @@ export class ResultsController {
   async assign(@Body() data: {
     programId: string;
     styleCategory: string;
-    firstPlace: string;
-    secondPlace: string;
-    thirdPlace: string;
+    firstPlace?: string;
+    secondPlace?: string;
+    thirdPlace?: string;
     fourthPlace?: string;
     fifthPlace?: string;
   }) {

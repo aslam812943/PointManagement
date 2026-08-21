@@ -81,8 +81,8 @@ const AdminResults = () => {
 
   const handleOpenConfirm = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProgram || !winners.firstPlace || !winners.secondPlace || !winners.thirdPlace) {
-      alert('Please select a program and the 1st, 2nd, and 3rd place winners.');
+    if (!selectedProgram) {
+      alert('Please select a program.');
       return;
     }
     setShowConfirm(true);
@@ -192,13 +192,12 @@ const AdminResults = () => {
             <div className="winner-input-group">
               <div className="winner-label first">
                 <Medal size={20} color="#ffd700" />
-                <span>1st Place (10 pts)</span>
+                <span>1st Place (10 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
                 value={winners.firstPlace}
                 onChange={(e) => setWinners({...winners, firstPlace: e.target.value})}
-                required
               >
                 <option value="">-- Select Team --</option>
                 {filteredTeams.map(t => (
@@ -210,13 +209,12 @@ const AdminResults = () => {
             <div className="winner-input-group">
               <div className="winner-label second">
                 <Medal size={20} color="#c0c0c0" />
-                <span>2nd Place (7 pts)</span>
+                <span>2nd Place (7 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
                 value={winners.secondPlace}
                 onChange={(e) => setWinners({...winners, secondPlace: e.target.value})}
-                required
               >
                 <option value="">-- Select Team --</option>
                 {filteredTeams.filter(t => t._id !== winners.firstPlace).map(t => (
@@ -228,13 +226,12 @@ const AdminResults = () => {
             <div className="winner-input-group">
               <div className="winner-label third">
                 <Medal size={20} color="#cd7f32" />
-                <span>3rd Place (5 pts)</span>
+                <span>3rd Place (5 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
                 value={winners.thirdPlace}
                 onChange={(e) => setWinners({...winners, thirdPlace: e.target.value})}
-                required
               >
                 <option value="">-- Select Team --</option>
                 {filteredTeams.filter(t => t._id !== winners.firstPlace && t._id !== winners.secondPlace).map(t => (

@@ -14,9 +14,9 @@ export class ResultsService {
   async assignResults(data: {
     programId: string;
     styleCategory: string;
-    firstPlace: string;
-    secondPlace: string;
-    thirdPlace: string;
+    firstPlace?: string;
+    secondPlace?: string;
+    thirdPlace?: string;
     fourthPlace?: string;
     fifthPlace?: string;
   }): Promise<ResultDocument> {
