@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           }
         });
 
-        if (response.ok) {
+        if (response.ok || response.status === 404) {
           setIsValid(true);
         } else {
           // Token is invalid or expired
