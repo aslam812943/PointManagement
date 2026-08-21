@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, CheckCircle, XCircle, LogOut, Menu,
-  LayoutDashboard, Settings, Search, Loader2, CalendarRange, Trophy, Ban, Unlock 
+  LayoutDashboard, Loader2, CalendarRange, Trophy, Ban, Unlock 
 } from 'lucide-react';
 import AdminPrograms from '../components/AdminPrograms';
 import AdminResults from '../components/AdminResults';
@@ -167,15 +167,20 @@ const AdminDashboard = () => {
                   >
                     + Add Team
                   </button>
-                  <select 
-                    value={teamStyleFilter}
-                    onChange={(e) => setTeamStyleFilter(e.target.value)}
-                    style={{ padding: '0.5rem', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)' }}
-                  >
-                    <option value="All">All Styles</option>
-                    <option value="Style 1">Style 1</option>
-                    <option value="Style 2">Style 2</option>
-                  </select>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => setTeamStyleFilter('All')}
+                      style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: teamStyleFilter === 'All' ? 'var(--primary-color)' : 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >All</button>
+                    <button 
+                      onClick={() => setTeamStyleFilter('Style 1')}
+                      style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: teamStyleFilter === 'Style 1' ? 'var(--primary-color)' : 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >Style 1</button>
+                    <button 
+                      onClick={() => setTeamStyleFilter('Style 2')}
+                      style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: teamStyleFilter === 'Style 2' ? 'var(--primary-color)' : 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >Style 2</button>
+                  </div>
                 </div>
                 <table className="admin-table">
                   <thead>
@@ -283,6 +288,68 @@ const AdminDashboard = () => {
         return <AdminPrograms />;
       case 'results':
         return <AdminResults />;
+      case 'dashboard': {
+        const verifiedTeams = teams.filter(t => t.status === 'verified');
+        const styles = Array.from(new Set(verifiedTeams.map(t => t.style).filter(Boolean))).sort();
+        
+        return (
+          <div className="dashboard-section" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'start' }}>
+            {styles.length === 0 ? (
+              <div className="empty-state glass" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                <Trophy size={48} className="empty-icon" style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                <p>No verified teams available to show the leaderboard yet.</p>
+              </div>
+            ) : (
+              styles.map(style => {
+                const styleTeams = verifiedTeams
+                  .filter(t => t.style === style)
+                  .sort((a, b) => b.totalPoints - a.totalPoints);
+                
+                return (
+                  <div key={style} className="style-leaderboard glass" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+                    <h3 style={{ margin: '0 0 1.5rem 0', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.2rem' }}>
+                      <Trophy size={20} color="var(--primary-color)" />
+                      {style} Leaderboard
+                    </h3>
+                    
+                    {styleTeams.length === 0 ? (
+                      <p className="text-muted">No teams in this category.</p>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="master-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr>
+                              <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', width: '60px', color: '#94a3b8' }}>Rank</th>
+                              <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>Team Name</th>
+                              <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'right', color: '#94a3b8' }}>Points</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {styleTeams.map((team, idx) => (
+                              <tr key={team._id}>
+                                <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontWeight: 'bold', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : 'white' }}>
+                                  #{idx + 1}
+                                </td>
+                                <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                  <img src={team.logoUrl} alt={team.name} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', background: 'white' }} />
+                                  <span style={{ fontWeight: '500', color: 'white' }}>{team.name}</span>
+                                </td>
+                                <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontWeight: 'bold', textAlign: 'right', color: 'var(--primary-color)' }}>
+                                  {team.totalPoints}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        );
+      }
       default:
         return <div className="glass empty-state">Content for {activeTab} coming soon...</div>;
     }
@@ -348,13 +415,6 @@ const AdminDashboard = () => {
             <Trophy size={20} />
             <span>Add Points</span>
           </button>
-          <button 
-            className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            <Settings size={20} />
-            <span>Settings</span>
-          </button>
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
@@ -373,10 +433,6 @@ const AdminDashboard = () => {
             </span>
           </h2>
           <div className="header-actions">
-            <div className="search-box glass">
-              <Search size={18} />
-              <input type="text" placeholder="Search..." />
-            </div>
           </div>
         </header>
 

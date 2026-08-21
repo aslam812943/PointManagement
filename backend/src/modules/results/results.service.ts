@@ -55,11 +55,11 @@ export class ResultsService {
     if (!result) throw new NotFoundException('Result not found');
 
     // Revert points
-    if (result.firstPlace) await this.teamsService.removePoints((result.firstPlace as any)._id, POINTS.FIRST);
-    if (result.secondPlace) await this.teamsService.removePoints((result.secondPlace as any)._id, POINTS.SECOND);
-    if (result.thirdPlace) await this.teamsService.removePoints((result.thirdPlace as any)._id, POINTS.THIRD);
-    if ((result as any).fourthPlace) await this.teamsService.removePoints((result as any).fourthPlace._id, POINTS.FOURTH);
-    if ((result as any).fifthPlace) await this.teamsService.removePoints((result as any).fifthPlace._id, POINTS.FIFTH);
+    if (result.firstPlace) await this.teamsService.removePoints((result.firstPlace as any)._id || result.firstPlace, POINTS.FIRST);
+    if (result.secondPlace) await this.teamsService.removePoints((result.secondPlace as any)._id || result.secondPlace, POINTS.SECOND);
+    if (result.thirdPlace) await this.teamsService.removePoints((result.thirdPlace as any)._id || result.thirdPlace, POINTS.THIRD);
+    if ((result as any).fourthPlace) await this.teamsService.removePoints((result as any).fourthPlace._id || (result as any).fourthPlace, POINTS.FOURTH);
+    if ((result as any).fifthPlace) await this.teamsService.removePoints((result as any).fifthPlace._id || (result as any).fifthPlace, POINTS.FIFTH);
 
     return this.resultsRepository.delete(id);
   }

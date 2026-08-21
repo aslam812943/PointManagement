@@ -110,7 +110,7 @@ const AdminResults = () => {
       if (response.ok) {
         setMessage('Results assigned successfully!');
         // Update results list locally to hide the program for this style
-        setResults([...results, { programId: selectedProgram, styleCategory: teamFilterStyle }]);
+        setResults([...results, data]);
         setSelectedProgram('');
         setWinners({ firstPlace: '', secondPlace: '', thirdPlace: '', fourthPlace: '', fifthPlace: '' });
       } else if (response.status === 401) {
