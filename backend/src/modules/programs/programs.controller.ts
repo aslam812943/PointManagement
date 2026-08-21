@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Delete, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Param, UseGuards, Patch } from '@nestjs/common';
 import { ProgramsService } from './programs.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 
@@ -10,6 +10,12 @@ export class ProgramsController {
   @Post()
   async create(@Body() createDto: { name: string, location: string, date: string }) {
     return this.programsService.createProgram(createDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateDto: Partial<{ name: string, location: string, date: string }>) {
+    return this.programsService.updateProgram(id, updateDto);
   }
 
   @Get()

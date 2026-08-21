@@ -10,9 +10,12 @@ export class ResultsController {
   @Post()
   async assign(@Body() data: {
     programId: string;
-    firstPlace: string;
-    secondPlace: string;
-    thirdPlace: string;
+    styleCategory: string;
+    firstPlace?: string;
+    secondPlace?: string;
+    thirdPlace?: string;
+    fourthPlace?: string;
+    fifthPlace?: string;
   }) {
     return this.resultsService.assignResults(data);
   }

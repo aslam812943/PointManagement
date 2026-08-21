@@ -8,12 +8,14 @@ interface Team {
   _id: string;
   name: string;
   logoUrl: string;
+  style: string;
   totalPoints: number;
 }
 
 const Home = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeStyleTab, setActiveStyleTab] = useState('Style 1');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -30,6 +32,9 @@ const Home = () => {
     fetchLeaderboard();
   }, []);
 
+  const topStyle1Team = teams.find(t => t.style === 'Style 1');
+  const topStyle2Team = teams.find(t => t.style === 'Style 2');
+
   return (
     <div className="container home-page">
       <header className="page-header">
@@ -41,8 +46,15 @@ const Home = () => {
         <div className="stat-card glass">
           <Trophy className="stat-icon" size={24} />
           <div className="stat-info">
-            <span className="stat-label">Top Team</span>
-            <span className="stat-value">{teams[0]?.name || '---'}</span>
+            <span className="stat-label">Top Style 1 Team</span>
+            <span className="stat-value">{topStyle1Team?.name || '---'}</span>
+          </div>
+        </div>
+        <div className="stat-card glass">
+          <Trophy className="stat-icon" size={24} />
+          <div className="stat-info">
+            <span className="stat-label">Top Style 2 Team</span>
+            <span className="stat-value">{topStyle2Team?.name || '---'}</span>
           </div>
         </div>
         <div className="stat-card glass">
@@ -59,6 +71,21 @@ const Home = () => {
             <span className="stat-value">Ongoing</span>
           </div>
         </div>
+      </div>
+
+      <div className="style-tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', justifyContent: 'center' }}>
+        <button 
+          onClick={() => setActiveStyleTab('Style 1')}
+          style={{ padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: activeStyleTab === 'Style 1' ? 'var(--primary-color)' : 'var(--glass-bg)', color: 'white', fontWeight: 'bold' }}
+        >
+          Style 1
+        </button>
+        <button 
+          onClick={() => setActiveStyleTab('Style 2')}
+          style={{ padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: activeStyleTab === 'Style 2' ? 'var(--primary-color)' : 'var(--glass-bg)', color: 'white', fontWeight: 'bold' }}
+        >
+          Style 2
+        </button>
       </div>
 
       <div className="leaderboard-section glass">
@@ -83,7 +110,7 @@ const Home = () => {
                 </tr>
               </thead>
               <tbody>
-                {teams.map((team, index) => (
+                {teams.filter(t => t.style === activeStyleTab).map((team, index) => (
                   <tr key={team._id} className="table-row">
                     <td className="rank-cell">
                       <span className={`rank-badge rank-${index + 1}`}>

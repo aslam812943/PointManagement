@@ -13,10 +13,12 @@ interface Program {
 interface Team {
   _id: string;
   name: string;
+  style: string;
 }
 
 interface Result {
   programId: string | any;
+  styleCategory: string;
 }
 
 const AdminResults = () => {
@@ -29,10 +31,13 @@ const AdminResults = () => {
     firstPlace: '',
     secondPlace: '',
     thirdPlace: '',
+    fourthPlace: '',
+    fifthPlace: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [teamFilterStyle, setTeamFilterStyle] = useState('Mixed');
 
   useEffect(() => {
     fetchInitialData();
@@ -53,10 +58,22 @@ const AdminResults = () => {
     }
   };
 
-  // Filter out programs that already have results assigned
-  const assignedProgramIds = results.map(r => 
-    typeof r.programId === 'object' ? r.programId._id : r.programId
-  );
+  // Filter out programs that already have results assigned based on conflicts
+  const assignedProgramIds = results.map(r => {
+    const pId = typeof r.programId === 'object' ? r.programId._id : r.programId;
+    
+    // If the program already has Mixed, it shouldn't allow ANY other category.
+    if (r.styleCategory === 'Mixed') return pId;
+
+    // If we are currently trying to add Mixed, it shouldn't allow it if ANY category exists.
+    if (teamFilterStyle === 'Mixed') return pId;
+
+    // If we are currently trying to add a specific style (e.g. Style 1), 
+    // hide the program ONLY if that specific style is already assigned.
+    if (r.styleCategory === teamFilterStyle) return pId;
+
+    return null;
+  }).filter(Boolean);
   
   const filteredPrograms = programs.filter(p => 
     p.date === date && !assignedProgramIds.includes(p._id)
@@ -64,8 +81,8 @@ const AdminResults = () => {
 
   const handleOpenConfirm = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProgram || !winners.firstPlace) {
-      alert('Please select a program and at least the 1st place winner.');
+    if (!selectedProgram) {
+      alert('Please select a program.');
       return;
     }
     setShowConfirm(true);
@@ -84,6 +101,7 @@ const AdminResults = () => {
         },
         body: JSON.stringify({
           programId: selectedProgram,
+          styleCategory: teamFilterStyle,
           ...winners
         }),
       });
@@ -91,10 +109,10 @@ const AdminResults = () => {
       const data = await response.json();
       if (response.ok) {
         setMessage('Results assigned successfully!');
-        // Update results list locally to hide the program
-        setResults([...results, { programId: selectedProgram }]);
+        // Update results list locally to hide the program for this style
+        setResults([...results, data]);
         setSelectedProgram('');
-        setWinners({ firstPlace: '', secondPlace: '', thirdPlace: '' });
+        setWinners({ firstPlace: '', secondPlace: '', thirdPlace: '', fourthPlace: '', fifthPlace: '' });
       } else if (response.status === 401) {
         window.location.reload();
       } else {
@@ -108,6 +126,8 @@ const AdminResults = () => {
   };
 
   const selectedProgramName = programs.find(p => p._id === selectedProgram)?.name;
+
+  const filteredTeams = teams.filter(t => teamFilterStyle === 'Mixed' || t.style === teamFilterStyle);
 
   return (
     <div className="results-container">
@@ -150,22 +170,37 @@ const AdminResults = () => {
               </select>
               {filteredPrograms.length === 0 && <span className="input-hint">No pending programs found for this date.</span>}
             </div>
+
+            <div className="form-group">
+              <label className="form-label">Step 3: Program Category</label>
+              <select 
+                className="form-input"
+                value={teamFilterStyle}
+                onChange={(e) => {
+                  setTeamFilterStyle(e.target.value);
+                  setWinners({ firstPlace: '', secondPlace: '', thirdPlace: '', fourthPlace: '', fifthPlace: '' });
+                }}
+              >
+                <option value="Mixed">Mixed (All Styles)</option>
+                <option value="Style 1">Style 1 Only</option>
+                <option value="Style 2">Style 2 Only</option>
+              </select>
+            </div>
           </div>
 
           <div className="winners-selection">
             <div className="winner-input-group">
               <div className="winner-label first">
                 <Medal size={20} color="#ffd700" />
-                <span>1st Place (10 pts)</span>
+                <span>1st Place (10 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
                 value={winners.firstPlace}
                 onChange={(e) => setWinners({...winners, firstPlace: e.target.value})}
-                required
               >
                 <option value="">-- Select Team --</option>
-                {teams.map(t => (
+                {filteredTeams.map(t => (
                   <option key={t._id} value={t._id}>{t.name}</option>
                 ))}
               </select>
@@ -174,7 +209,7 @@ const AdminResults = () => {
             <div className="winner-input-group">
               <div className="winner-label second">
                 <Medal size={20} color="#c0c0c0" />
-                <span>2nd Place (5 pts)</span>
+                <span>2nd Place (7 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
@@ -182,7 +217,7 @@ const AdminResults = () => {
                 onChange={(e) => setWinners({...winners, secondPlace: e.target.value})}
               >
                 <option value="">-- Select Team --</option>
-                {teams.filter(t => t._id !== winners.firstPlace).map(t => (
+                {filteredTeams.filter(t => t._id !== winners.firstPlace).map(t => (
                   <option key={t._id} value={t._id}>{t.name}</option>
                 ))}
               </select>
@@ -191,7 +226,7 @@ const AdminResults = () => {
             <div className="winner-input-group">
               <div className="winner-label third">
                 <Medal size={20} color="#cd7f32" />
-                <span>3rd Place (3 pts)</span>
+                <span>3rd Place (5 pts) (Optional)</span>
               </div>
               <select 
                 className="form-input"
@@ -199,7 +234,41 @@ const AdminResults = () => {
                 onChange={(e) => setWinners({...winners, thirdPlace: e.target.value})}
               >
                 <option value="">-- Select Team --</option>
-                {teams.filter(t => t._id !== winners.firstPlace && t._id !== winners.secondPlace).map(t => (
+                {filteredTeams.filter(t => t._id !== winners.firstPlace && t._id !== winners.secondPlace).map(t => (
+                  <option key={t._id} value={t._id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="winner-input-group">
+              <div className="winner-label fourth">
+                <Medal size={20} color="#64748b" />
+                <span>4th Place (3 pts) (Optional)</span>
+              </div>
+              <select 
+                className="form-input"
+                value={winners.fourthPlace}
+                onChange={(e) => setWinners({...winners, fourthPlace: e.target.value})}
+              >
+                <option value="">-- Select Team --</option>
+                {filteredTeams.filter(t => t._id !== winners.firstPlace && t._id !== winners.secondPlace && t._id !== winners.thirdPlace).map(t => (
+                  <option key={t._id} value={t._id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="winner-input-group">
+              <div className="winner-label fifth">
+                <Medal size={20} color="#94a3b8" />
+                <span>5th Place (2 pts) (Optional)</span>
+              </div>
+              <select 
+                className="form-input"
+                value={winners.fifthPlace}
+                onChange={(e) => setWinners({...winners, fifthPlace: e.target.value})}
+              >
+                <option value="">-- Select Team --</option>
+                {filteredTeams.filter(t => t._id !== winners.firstPlace && t._id !== winners.secondPlace && t._id !== winners.thirdPlace && t._id !== winners.fourthPlace).map(t => (
                   <option key={t._id} value={t._id}>{t.name}</option>
                 ))}
               </select>

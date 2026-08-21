@@ -10,17 +10,22 @@ export class TeamsService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async registerTeam(name: string, logo: Express.Multer.File): Promise<TeamDocument> {
+  async registerTeam(name: string, style: string, logo?: Express.Multer.File): Promise<TeamDocument> {
     const existingTeam = await this.teamsRepository.findByName(name);
     if (existingTeam) {
       throw new ConflictException('Team name already exists');
     }
 
-    const uploadResult = await this.cloudinaryService.uploadFile(logo);
+    let secure_url = '';
+    if (logo) {
+      const uploadResult = await this.cloudinaryService.uploadFile(logo);
+      secure_url = uploadResult.secure_url;
+    }
     
     return this.teamsRepository.create({
       name,
-      logoUrl: uploadResult.secure_url,
+      logoUrl: secure_url,
+      style,
       status: 'pending',
       totalPoints: 0,
     });

@@ -5,6 +5,7 @@ import './Register.css';
 
 const Register = () => {
   const [teamName, setTeamName] = useState('');
+  const [style, setStyle] = useState('Style 1');
   const [logo, setLogo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ const Register = () => {
 
     const formData = new FormData();
     formData.append('name', teamName);
+    formData.append('style', style);
     formData.append('logo', logo);
 
     try {
@@ -92,6 +94,19 @@ const Register = () => {
               required
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Team Style</label>
+            <select 
+              className="form-input"
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              disabled={loading}
+            >
+              <option value="Style 1">Style 1</option>
+              <option value="Style 2">Style 2</option>
+            </select>
           </div>
 
           <div className="form-group">

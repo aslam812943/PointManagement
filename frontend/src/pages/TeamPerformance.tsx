@@ -24,6 +24,8 @@ interface Result {
   firstPlace: string | any;
   secondPlace: string | any;
   thirdPlace: string | any;
+  fourthPlace?: string | any;
+  fifthPlace?: string | any;
 }
 
 const TeamPerformance = () => {
@@ -76,27 +78,36 @@ const TeamPerformance = () => {
   const sortedDates = Object.keys(groupedPrograms).sort();
 
   const getPointsForProgram = (programId: string) => {
-    const result = results.find(r => 
+    const programResults = results.filter(r => 
       (typeof r.programId === 'object' ? r.programId._id : r.programId) === programId
     );
 
-    if (!result) return 0;
+    let totalPts = 0;
+    
+    programResults.forEach(result => {
+      const firstId = typeof result.firstPlace === 'object' ? result.firstPlace?._id : result.firstPlace;
+      const secondId = typeof result.secondPlace === 'object' ? result.secondPlace?._id : result.secondPlace;
+      const thirdId = typeof result.thirdPlace === 'object' ? result.thirdPlace?._id : result.thirdPlace;
+      const fourthId = typeof result.fourthPlace === 'object' ? result.fourthPlace?._id : result.fourthPlace;
+      const fifthId = typeof result.fifthPlace === 'object' ? result.fifthPlace?._id : result.fifthPlace;
 
-    const firstId = typeof result.firstPlace === 'object' ? result.firstPlace?._id : result.firstPlace;
-    const secondId = typeof result.secondPlace === 'object' ? result.secondPlace?._id : result.secondPlace;
-    const thirdId = typeof result.thirdPlace === 'object' ? result.thirdPlace?._id : result.thirdPlace;
+      if (firstId === id) totalPts += 10;
+      else if (secondId === id) totalPts += 7;
+      else if (thirdId === id) totalPts += 5;
+      else if (fourthId === id) totalPts += 3;
+      else if (fifthId === id) totalPts += 2;
+    });
 
-    if (firstId === id) return 10;
-    if (secondId === id) return 5;
-    if (thirdId === id) return 3;
-    return 0;
+    return totalPts;
   };
 
   const getPositionText = (programId: string) => {
     const pts = getPointsForProgram(programId);
     if (pts === 10) return { text: '1st Place', class: 'first' };
-    if (pts === 5) return { text: '2nd Place', class: 'second' };
-    if (pts === 3) return { text: '3rd Place', class: 'third' };
+    if (pts === 7) return { text: '2nd Place', class: 'second' };
+    if (pts === 5) return { text: '3rd Place', class: 'third' };
+    if (pts === 3) return { text: '4th Place', class: 'fourth' };
+    if (pts === 2) return { text: '5th Place', class: 'fifth' };
     return { text: 'No Rank', class: 'none' };
   };
 

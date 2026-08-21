@@ -10,6 +10,10 @@ export class ProgramsService {
     return this.programsRepository.create(data);
   }
 
+  async updateProgram(id: string, data: Partial<{ name: string, location: string, date: string }>): Promise<ProgramDocument | null> {
+    return this.programsRepository.update(id, data);
+  }
+
   async getAllPrograms(): Promise<ProgramDocument[]> {
     return this.programsRepository.findAll();
   }

@@ -9,15 +9,15 @@ export class ResultsRepository implements IRepository<ResultDocument> {
   constructor(@InjectModel(Result.name) private resultModel: Model<ResultDocument>) {}
 
   async findAll(): Promise<ResultDocument[]> {
-    return this.resultModel.find().populate('firstPlace secondPlace thirdPlace').exec();
+    return this.resultModel.find().populate('firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
   }
 
   async findById(id: string): Promise<ResultDocument | null> {
-    return this.resultModel.findById(id).populate('firstPlace secondPlace thirdPlace').exec();
+    return this.resultModel.findById(id).populate('firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
   }
 
-  async findByProgramId(programId: string): Promise<ResultDocument | null> {
-    return this.resultModel.findOne({ programId }).exec();
+  async findByProgramAndStyle(programId: string, styleCategory: string): Promise<ResultDocument | null> {
+    return this.resultModel.findOne({ programId, styleCategory }).exec();
   }
 
   async create(data: Partial<Result>): Promise<ResultDocument> {

@@ -7,12 +7,14 @@ interface Team {
   _id: string;
   name: string;
   logoUrl: string;
+  style: string;
 }
 
 interface Program {
   _id: string;
   name: string;
   date: string;
+  location: string;
 }
 
 interface Result {
@@ -20,6 +22,8 @@ interface Result {
   firstPlace: string | any;
   secondPlace: string | any;
   thirdPlace: string | any;
+  fourthPlace?: string | any;
+  fifthPlace?: string | any;
 }
 
 const FullOverview = () => {
@@ -27,6 +31,7 @@ const FullOverview = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeStyleTab, setActiveStyleTab] = useState('Style 1');
 
   useEffect(() => {
     fetchData();
@@ -51,20 +56,27 @@ const FullOverview = () => {
   };
 
   const getPoints = (teamId: string, programId: string) => {
-    const result = results.find(r => 
+    const programResults = results.filter(r => 
       (typeof r.programId === 'object' ? r.programId._id : r.programId) === programId
     );
 
-    if (!result) return 0;
+    let totalPts = 0;
 
-    const firstId = typeof result.firstPlace === 'object' ? result.firstPlace?._id : result.firstPlace;
-    const secondId = typeof result.secondPlace === 'object' ? result.secondPlace?._id : result.secondPlace;
-    const thirdId = typeof result.thirdPlace === 'object' ? result.thirdPlace?._id : result.thirdPlace;
+    programResults.forEach(result => {
+      const firstId = typeof result.firstPlace === 'object' ? result.firstPlace?._id : result.firstPlace;
+      const secondId = typeof result.secondPlace === 'object' ? result.secondPlace?._id : result.secondPlace;
+      const thirdId = typeof result.thirdPlace === 'object' ? result.thirdPlace?._id : result.thirdPlace;
+      const fourthId = typeof result.fourthPlace === 'object' ? result.fourthPlace?._id : result.fourthPlace;
+      const fifthId = typeof result.fifthPlace === 'object' ? result.fifthPlace?._id : result.fifthPlace;
 
-    if (firstId === teamId) return 10;
-    if (secondId === teamId) return 5;
-    if (thirdId === teamId) return 3;
-    return 0;
+      if (firstId === teamId) totalPts += 10;
+      else if (secondId === teamId) totalPts += 7;
+      else if (thirdId === teamId) totalPts += 5;
+      else if (fourthId === teamId) totalPts += 3;
+      else if (fifthId === teamId) totalPts += 2;
+    });
+
+    return totalPts;
   };
 
   // Group programs by date for headers
@@ -89,6 +101,21 @@ const FullOverview = () => {
         <p className="page-subtitle">Master scoring sheet for all teams across all programs.</p>
       </header>
 
+      <div className="style-tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+        <button 
+          onClick={() => setActiveStyleTab('Style 1')}
+          style={{ padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: activeStyleTab === 'Style 1' ? 'var(--primary-color)' : 'var(--glass-bg)', color: 'white', fontWeight: 'bold' }}
+        >
+          Style 1
+        </button>
+        <button 
+          onClick={() => setActiveStyleTab('Style 2')}
+          style={{ padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: activeStyleTab === 'Style 2' ? 'var(--primary-color)' : 'var(--glass-bg)', color: 'white', fontWeight: 'bold' }}
+        >
+          Style 2
+        </button>
+      </div>
+
       <div className="overview-card glass">
         <div className="table-wrapper">
           <table className="master-table">
@@ -97,7 +124,7 @@ const FullOverview = () => {
                 <th className="sticky-col team-col">Team / Programs</th>
                 {sortedPrograms.map(p => (
                   <th key={p._id} className="program-header">
-                    <span className="p-date">{new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    <span className="p-date">{new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {p.location}</span>
                     <span className="p-name">{p.name}</span>
                   </th>
                 ))}
@@ -105,7 +132,7 @@ const FullOverview = () => {
               </tr>
             </thead>
             <tbody>
-              {teams.map(team => {
+              {teams.filter(t => t.style === activeStyleTab).map(team => {
                 let teamTotal = 0;
                 return (
                   <tr key={team._id}>

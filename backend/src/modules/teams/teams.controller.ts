@@ -11,9 +11,10 @@ export class TeamsController {
   @UseInterceptors(FileInterceptor('logo'))
   async register(
     @Body('name') name: string,
-    @UploadedFile() logo: Express.Multer.File,
+    @Body('style') style: string,
+    @UploadedFile() logo?: Express.Multer.File,
   ) {
-    return this.teamsService.registerTeam(name, logo);
+    return this.teamsService.registerTeam(name, style, logo);
   }
 
   @UseGuards(JwtAuthGuard)
