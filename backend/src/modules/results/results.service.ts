@@ -36,14 +36,17 @@ export class ResultsService {
       fifthPlace: data.fifthPlace || undefined,
     };
 
-    // Assign points to teams
+    // First save the result to DB to ensure no unique constraint errors occur
+    const savedResult = await this.resultsRepository.create(resultData);
+
+    // Only assign points if saving the result was successful
     if (resultData.firstPlace) await this.teamsService.addPoints(resultData.firstPlace, POINTS.FIRST);
     if (resultData.secondPlace) await this.teamsService.addPoints(resultData.secondPlace, POINTS.SECOND);
     if (resultData.thirdPlace) await this.teamsService.addPoints(resultData.thirdPlace, POINTS.THIRD);
     if (resultData.fourthPlace) await this.teamsService.addPoints(resultData.fourthPlace, POINTS.FOURTH);
     if (resultData.fifthPlace) await this.teamsService.addPoints(resultData.fifthPlace, POINTS.FIFTH);
 
-    return this.resultsRepository.create(resultData);
+    return savedResult;
   }
 
   async getAllResults(): Promise<ResultDocument[]> {
