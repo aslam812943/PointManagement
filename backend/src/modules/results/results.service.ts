@@ -53,6 +53,48 @@ export class ResultsService {
     return this.resultsRepository.findAll();
   }
 
+  async updateResult(id: string, data: {
+    firstPlace?: string;
+    secondPlace?: string;
+    thirdPlace?: string;
+    fourthPlace?: string;
+    fifthPlace?: string;
+  }): Promise<ResultDocument> {
+    const existingResult = await this.resultsRepository.findById(id);
+    if (!existingResult) {
+      throw new NotFoundException('Result not found');
+    }
+
+    // Revert old points
+    if (existingResult.firstPlace) await this.teamsService.removePoints((existingResult.firstPlace as any)._id || existingResult.firstPlace, POINTS.FIRST);
+    if (existingResult.secondPlace) await this.teamsService.removePoints((existingResult.secondPlace as any)._id || existingResult.secondPlace, POINTS.SECOND);
+    if (existingResult.thirdPlace) await this.teamsService.removePoints((existingResult.thirdPlace as any)._id || existingResult.thirdPlace, POINTS.THIRD);
+    if ((existingResult as any).fourthPlace) await this.teamsService.removePoints((existingResult as any).fourthPlace._id || (existingResult as any).fourthPlace, POINTS.FOURTH);
+    if ((existingResult as any).fifthPlace) await this.teamsService.removePoints((existingResult as any).fifthPlace._id || (existingResult as any).fifthPlace, POINTS.FIFTH);
+
+    // Apply new points
+    if (data.firstPlace) await this.teamsService.addPoints(data.firstPlace, POINTS.FIRST);
+    if (data.secondPlace) await this.teamsService.addPoints(data.secondPlace, POINTS.SECOND);
+    if (data.thirdPlace) await this.teamsService.addPoints(data.thirdPlace, POINTS.THIRD);
+    if (data.fourthPlace) await this.teamsService.addPoints(data.fourthPlace, POINTS.FOURTH);
+    if (data.fifthPlace) await this.teamsService.addPoints(data.fifthPlace, POINTS.FIFTH);
+
+    const updateData = {
+      firstPlace: data.firstPlace || undefined,
+      secondPlace: data.secondPlace || undefined,
+      thirdPlace: data.thirdPlace || undefined,
+      fourthPlace: data.fourthPlace || undefined,
+      fifthPlace: data.fifthPlace || undefined,
+    };
+
+    const updatedResult = await this.resultsRepository.update(id, updateData);
+    if (!updatedResult) {
+      throw new NotFoundException('Result not found during update');
+    }
+
+    return updatedResult;
+  }
+
   async deleteResult(id: string): Promise<boolean> {
     const result = await this.resultsRepository.findById(id);
     if (!result) throw new NotFoundException('Result not found');

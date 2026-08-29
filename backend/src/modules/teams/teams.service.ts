@@ -82,4 +82,30 @@ export class TeamsService {
     }
     return updatedTeam;
   }
+  async updateTeamDetails(id: string, name: string, style: string, logo?: Express.Multer.File): Promise<TeamDocument> {
+    const existingTeam = await this.teamsRepository.findById(id);
+    if (!existingTeam) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (name !== existingTeam.name) {
+      const nameExists = await this.teamsRepository.findByName(name);
+      if (nameExists) {
+        throw new ConflictException('Team name already exists');
+      }
+    }
+
+    const updateData: any = { name, style };
+
+    if (logo) {
+      const uploadResult = await this.cloudinaryService.uploadFile(logo);
+      updateData.logoUrl = uploadResult.secure_url;
+    }
+
+    const updatedTeam = await this.teamsRepository.update(id, updateData);
+    if (!updatedTeam) {
+      throw new NotFoundException('Team not found during update');
+    }
+    return updatedTeam;
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Delete, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Param, UseGuards, Put } from '@nestjs/common';
 import { ResultsService } from './results.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 
@@ -23,6 +23,21 @@ export class ResultsController {
   @Get()
   async findAll() {
     return this.resultsService.getAllResults();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  async updateResult(
+    @Param('id') id: string,
+    @Body() data: {
+      firstPlace?: string;
+      secondPlace?: string;
+      thirdPlace?: string;
+      fourthPlace?: string;
+      fifthPlace?: string;
+    }
+  ) {
+    return this.resultsService.updateResult(id, data);
   }
 
   @UseGuards(JwtAuthGuard)

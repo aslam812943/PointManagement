@@ -50,4 +50,16 @@ export class TeamsController {
   async getTeam(@Param('id') id: string) {
     return this.teamsService.getTeamById(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor('logo'))
+  async updateTeam(
+    @Param('id') id: string,
+    @Body('name') name: string,
+    @Body('style') style: string,
+    @UploadedFile() logo?: Express.Multer.File,
+  ) {
+    return this.teamsService.updateTeamDetails(id, name, style, logo);
+  }
 }

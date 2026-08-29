@@ -9,11 +9,11 @@ export class ResultsRepository implements IRepository<ResultDocument> {
   constructor(@InjectModel(Result.name) private resultModel: Model<ResultDocument>) {}
 
   async findAll(): Promise<ResultDocument[]> {
-    return this.resultModel.find().populate('firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
+    return this.resultModel.find().populate('programId firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
   }
 
   async findById(id: string): Promise<ResultDocument | null> {
-    return this.resultModel.findById(id).populate('firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
+    return this.resultModel.findById(id).populate('programId firstPlace secondPlace thirdPlace fourthPlace fifthPlace').exec();
   }
 
   async findByProgramAndStyle(programId: string, styleCategory: string): Promise<ResultDocument | null> {

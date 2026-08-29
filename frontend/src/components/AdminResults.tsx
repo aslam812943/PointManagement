@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../config/api.config";
 import { useState, useEffect } from 'react';
-import { Trophy, Calendar, Medal, Loader2, CheckCircle2 } from 'lucide-react';
+import { Trophy, Calendar, Medal, Loader2, CheckCircle2, Trash2, Edit, MapPin } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 interface Program {
@@ -38,6 +38,12 @@ const AdminResults = () => {
   const [message, setMessage] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [teamFilterStyle, setTeamFilterStyle] = useState('Mixed');
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingResultId, setEditingResultId] = useState('');
+  const [editWinners, setEditWinners] = useState(initialWinnersState);
+  const [editingResultStyle, setEditingResultStyle] = useState('Mixed');
+  const [editingProgramName, setEditingProgramName] = useState('');
 
   useEffect(() => {
     fetchInitialData();
@@ -100,8 +106,10 @@ const AdminResults = () => {
 
         const data = await response.json();
         if (response.ok) {
+          // Refetch results to get populated data
+          const resultsRes = await fetch(`${API_BASE_URL}/results`);
+          setResults(await resultsRes.json());
           setMessage('Results assigned successfully!');
-          setResults([...results, data]);
           setSelectedProgram('');
           setWinners(initialWinnersState);
         } else if (response.status === 401) {
@@ -111,7 +119,6 @@ const AdminResults = () => {
         }
       } else if (teamFilterStyle === 'Separate') {
         let hasError = false;
-        let newResults = [...results];
         
         // Submit Style 1
         const res1 = await fetch(`${API_BASE_URL}/results`, {
@@ -127,8 +134,6 @@ const AdminResults = () => {
         } else if (!res1.ok) {
           alert(data1.message || 'Error assigning Style 1 results');
           hasError = true;
-        } else {
-          newResults.push(data1);
         }
 
         // Submit Style 2
@@ -145,13 +150,13 @@ const AdminResults = () => {
         } else if (!res2.ok) {
           alert(data2.message || 'Error assigning Style 2 results');
           hasError = true;
-        } else {
-          newResults.push(data2);
         }
 
         if (!hasError) {
+          // Refetch results to get populated data
+          const resultsRes = await fetch(`${API_BASE_URL}/results`);
+          setResults(await resultsRes.json());
           setMessage('Separate results assigned successfully!');
-          setResults(newResults);
           setSelectedProgram('');
           setStyle1Winners(initialWinnersState);
           setStyle2Winners(initialWinnersState);
@@ -159,6 +164,72 @@ const AdminResults = () => {
       }
     } catch (error) {
       console.error('Error submitting results:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteResult = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this result? Points will be removed from the teams.')) {
+      return;
+    }
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/results/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setResults(results.filter(r => (r as any)._id !== id));
+        setMessage('Result deleted successfully!');
+      } else if (response.status === 401) {
+        window.location.reload();
+      } else {
+        alert('Failed to delete result');
+      }
+    } catch (error) {
+      console.error('Error deleting result:', error);
+    }
+  };
+
+  const handleOpenEditModal = (result: any) => {
+    setEditingResultId(result._id);
+    setEditingResultStyle(result.styleCategory);
+    setEditingProgramName(result.programId?.name || 'Unknown Program');
+    setEditWinners({
+      firstPlace: result.firstPlace?._id || '',
+      secondPlace: result.secondPlace?._id || '',
+      thirdPlace: result.thirdPlace?._id || '',
+      fourthPlace: result.fourthPlace?._id || '',
+      fifthPlace: result.fifthPlace?._id || '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/results/${editingResultId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(editWinners),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Refetch all results to get updated populated fields
+        const resultsRes = await fetch(`${API_BASE_URL}/results`);
+        setResults(await resultsRes.json());
+        setIsEditModalOpen(false);
+        setMessage('Result updated successfully!');
+      } else if (response.status === 401) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Error updating result');
+      }
+    } catch (error) {
+      console.error('Error updating result:', error);
     } finally {
       setSubmitting(false);
     }
@@ -347,6 +418,84 @@ const AdminResults = () => {
           </button>
         </form>
       </div>
+
+      <div className="assigned-results-card glass" style={{ marginTop: '2rem', padding: '1.5rem', borderRadius: '12px' }}>
+        <h3 className="section-subtitle" style={{ marginBottom: '1rem' }}>
+          <CheckCircle2 size={20} />
+          <span>Assigned Results</span>
+        </h3>
+        
+        {results.length === 0 ? (
+          <p className="text-muted">No results have been assigned yet.</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="master-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>Location</th>
+                  <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>Category</th>
+                  <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>1st Place</th>
+                  <th style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((r: any) => (
+                  <tr key={r._id}>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'white' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: '500' }}>
+                        <MapPin size={16} color="var(--primary-color)" />
+                        <span>{r.programId?.location || 'Unknown'}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'white' }}>
+                      {r.styleCategory}
+                    </td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'white' }}>
+                      {r.firstPlace?.name || '-'}
+                    </td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          className="action-btn"
+                          style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '0.25rem 0.5rem' }}
+                          onClick={() => handleOpenEditModal(r)}
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button 
+                          className="action-btn"
+                          style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.25rem 0.5rem' }}
+                          onClick={() => handleDeleteResult(r._id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {isEditModalOpen && (
+        <div className="sidebar-overlay" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) setIsEditModalOpen(false); }}>
+          <div className="glass" style={{ padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '0.5rem', color: 'white' }}>Edit Results</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>{editingProgramName} ({editingResultStyle})</p>
+            <form onSubmit={handleEditSubmit}>
+              {renderWinnerSelects('', editWinners, setEditWinners, editingResultStyle === 'Mixed' ? teams : teams.filter(t => t.style === editingResultStyle))}
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                <button type="button" onClick={() => setIsEditModalOpen(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'transparent', border: '1px solid var(--border-color)', color: 'white', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" disabled={submitting} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'var(--primary-color)', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                  {submitting ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal 
         isOpen={showConfirm}

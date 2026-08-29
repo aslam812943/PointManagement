@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, CheckCircle, XCircle, LogOut, Menu,
-  LayoutDashboard, Loader2, CalendarRange, Trophy, Ban, Unlock 
+  LayoutDashboard, Loader2, CalendarRange, Trophy, Ban, Unlock, Edit
 } from 'lucide-react';
 import AdminPrograms from '../components/AdminPrograms';
 import AdminResults from '../components/AdminResults';
@@ -22,7 +22,7 @@ interface Team {
 const AdminDashboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('teams');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [teamStyleFilter, setTeamStyleFilter] = useState('All');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
@@ -30,10 +30,18 @@ const AdminDashboard = () => {
   const [newTeamStyle, setNewTeamStyle] = useState('Style 1');
   const [newTeamLogo, setNewTeamLogo] = useState<File | null>(null);
   const [addingTeam, setAddingTeam] = useState(false);
+  
+  const [isEditTeamModalOpen, setIsEditTeamModalOpen] = useState(false);
+  const [editTeamId, setEditTeamId] = useState<string | null>(null);
+  const [editTeamName, setEditTeamName] = useState('');
+  const [editTeamStyle, setEditTeamStyle] = useState('Style 1');
+  const [editTeamLogo, setEditTeamLogo] = useState<File | null>(null);
+  const [editingTeam, setEditingTeam] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (activeTab === 'teams') {
+    if (activeTab === 'teams' || activeTab === 'dashboard') {
       fetchTeams();
     }
     setIsSidebarOpen(false);
@@ -138,6 +146,51 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleOpenEditModal = (team: Team) => {
+    setEditTeamId(team._id);
+    setEditTeamName(team.name);
+    setEditTeamStyle(team.style || 'Style 1');
+    setEditTeamLogo(null);
+    setIsEditTeamModalOpen(true);
+  };
+
+  const handleEditTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTeamId) return;
+    setEditingTeam(true);
+    const formData = new FormData();
+    formData.append('name', editTeamName);
+    formData.append('style', editTeamStyle);
+    if (editTeamLogo) {
+      formData.append('logo', editTeamLogo);
+    }
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_BASE_URL}/teams/${editTeamId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('Team updated successfully!');
+        setIsEditTeamModalOpen(false);
+        fetchTeams();
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error updating team');
+      }
+    } catch (error) {
+      console.error('Error updating team:', error);
+      alert('Something went wrong');
+    } finally {
+      setEditingTeam(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('isAdminAuthenticated');
     localStorage.removeItem('adminToken');
@@ -230,6 +283,14 @@ const AdminDashboard = () => {
                                 <span>{team.isBlocked ? 'Unblock' : 'Block'}</span>
                               </button>
                             )}
+                            <button 
+                              className="action-btn"
+                              style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)' }}
+                              onClick={() => handleOpenEditModal(team)}
+                            >
+                              <Edit size={18} />
+                              <span>Edit</span>
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -257,12 +318,43 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Logo</label>
-                      <input type="file" accept="image/*" onChange={e => setNewTeamLogo(e.target.files?.[0] || null)} style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
+                      <input type="file" accept="image/*" onChange={e => setNewTeamLogo(e.target.files?.[0] || null)} required style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                       <button type="button" onClick={() => setIsAddTeamModalOpen(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'transparent', border: '1px solid var(--border-color)', color: 'white', cursor: 'pointer' }}>Cancel</button>
                       <button type="submit" disabled={addingTeam} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'var(--primary-color)', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
                         {addingTeam ? 'Adding...' : 'Add Team'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {isEditTeamModalOpen && (
+              <div className="sidebar-overlay" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) setIsEditTeamModalOpen(false); }}>
+                <div className="glass" style={{ padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '400px', position: 'relative' }}>
+                  <h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'white' }}>Edit Team</h3>
+                  <form onSubmit={handleEditTeam} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Name</label>
+                      <input type="text" value={editTeamName} onChange={e => setEditTeamName(e.target.value)} required style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Team Style</label>
+                      <select value={editTeamStyle} onChange={e => setEditTeamStyle(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }}>
+                        <option value="Style 1" style={{color: 'black'}}>Style 1</option>
+                        <option value="Style 2" style={{color: 'black'}}>Style 2</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Update Logo (Optional)</label>
+                      <input type="file" accept="image/*" onChange={e => setEditTeamLogo(e.target.files?.[0] || null)} style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', color: 'white' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <button type="button" onClick={() => setIsEditTeamModalOpen(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'transparent', border: '1px solid var(--border-color)', color: 'white', cursor: 'pointer' }}>Cancel</button>
+                      <button type="submit" disabled={editingTeam} style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', background: 'var(--primary-color)', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                        {editingTeam ? 'Saving...' : 'Save Changes'}
                       </button>
                     </div>
                   </form>
