@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../config/api.config";
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Trophy, Calendar, Medal, ArrowLeft, Loader2, MapPin } from 'lucide-react';
+import { Trophy, Calendar, Medal, ArrowLeft, Loader2, MapPin, Award } from 'lucide-react';
 import './TeamPerformance.css';
 
 interface Team {
@@ -111,6 +111,43 @@ const TeamPerformance = () => {
     return { text: 'No Rank', class: 'none' };
   };
 
+  const currentTeamId = team?._id || id;
+
+  const positionSummary = results.reduce(
+    (acc, result) => {
+      const firstId = typeof result.firstPlace === 'object' ? result.firstPlace?._id : result.firstPlace;
+      const secondId = typeof result.secondPlace === 'object' ? result.secondPlace?._id : result.secondPlace;
+      const thirdId = typeof result.thirdPlace === 'object' ? result.thirdPlace?._id : result.thirdPlace;
+      const fourthId = typeof result.fourthPlace === 'object' ? result.fourthPlace?._id : result.fourthPlace;
+      const fifthId = typeof result.fifthPlace === 'object' ? result.fifthPlace?._id : result.fifthPlace;
+
+      if (firstId && (firstId === id || firstId === currentTeamId || String(firstId) === String(id))) acc.first++;
+      if (secondId && (secondId === id || secondId === currentTeamId || String(secondId) === String(id))) acc.second++;
+      if (thirdId && (thirdId === id || thirdId === currentTeamId || String(thirdId) === String(id))) acc.third++;
+      if (fourthId && (fourthId === id || fourthId === currentTeamId || String(fourthId) === String(id))) acc.fourth++;
+      if (fifthId && (fifthId === id || fifthId === currentTeamId || String(fifthId) === String(id))) acc.fifth++;
+
+      return acc;
+    },
+    { first: 0, second: 0, third: 0, fourth: 0, fifth: 0 }
+  );
+
+  const totalPrizes =
+    positionSummary.first +
+    positionSummary.second +
+    positionSummary.third +
+    positionSummary.fourth +
+    positionSummary.fifth;
+
+  const summaryItems = [
+    { label: '1st Place', count: positionSummary.first, key: 'first', icon: Trophy, colorClass: 'first' },
+    { label: '2nd Place', count: positionSummary.second, key: 'second', icon: Medal, colorClass: 'second' },
+    { label: '3rd Place', count: positionSummary.third, key: 'third', icon: Medal, colorClass: 'third' },
+    { label: '4th Place', count: positionSummary.fourth, key: 'fourth', icon: Award, colorClass: 'fourth' },
+    { label: '5th Place', count: positionSummary.fifth, key: 'fifth', icon: Award, colorClass: 'fifth' },
+    { label: 'Total Prizes', count: totalPrizes, key: 'total', icon: Trophy, colorClass: 'total' },
+  ];
+
   return (
     <div className="container team-detail-page">
       <Link to="/" className="back-link">
@@ -132,6 +169,26 @@ const TeamPerformance = () => {
             <span className="score-label">Total Season Points</span>
             <span className="score-value">{team.totalPoints}</span>
           </div>
+        </div>
+      </div>
+
+      <div className="position-summary-section">
+        <h2 className="section-title">Position <span className="gradient-text">Summary</span></h2>
+        <div className="position-summary-grid">
+          {summaryItems.map(item => {
+            const Icon = item.icon;
+            return (
+              <div key={item.key} className={`position-stat-card glass ${item.colorClass}`}>
+                <div className="position-stat-icon-wrapper">
+                  <Icon size={22} />
+                </div>
+                <div className="position-stat-content">
+                  <span className="position-stat-label">{item.label}</span>
+                  <span className="position-stat-value">{item.count}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
